@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Company</title>
+</head>
+<body>
+
+    <h1>Edit Company</h1>
+
+    <form method="POST">
+
+        <label>Company Name:</label>
+        <input
+            type="text"
+            name="company_name"
+            value="{{ company.company_name }}"
+            required
+        >
+
+        <label>Industry:</label>
+        <input
+            type="text"
+            name="industry"
+            value="{{ company.industry or '' }}"
+        >
+
+        <label>Website:</label>
+        <input
+            type="text"
+            name="website"
+            value="{{ company.website or '' }}"
+        >
+
+        <label>City:</label>
+        <input
+            type="text"
+            name="city"
+            value="{{ company.city or '' }}"
+        >
+
+        <label>State:</label>
+        <input
+            type="text"
+            name="state"
+            value="{{ company.state or '' }}"
+        >
+
+        <label>Notes:</label>
+        <textarea name="notes">{{ company.notes or '' }}</textarea>
+
+        <button type="submit">Save Changes</button>
+
+    </form>
+
+    <a href="{{ url_for('companies') }}">Back to Companies</a>
+
+</body>
+</html>

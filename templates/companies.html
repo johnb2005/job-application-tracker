@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Companies</title>
+</head>
+<body>
+
+    <h1>Companies</h1>
+
+    <h2>Add New Company</h2>
+
+    <form action="{{ url_for('companies') }}" method="POST">
+
+        <label>Company Name:</label>
+        <input type="text" name="company_name" maxlength="100" required>
+
+        <label>Industry:</label>
+        <input type="text" name="industry" maxlength="50">
+
+        <label>Website:</label>
+        <input type="text" name="website" maxlength="200">
+
+        <label>City:</label>
+        <input type="text" name="city" maxlength="50">
+
+        <label>State:</label>
+        <input type="text" name="state" maxlength="50">
+
+        <label>Notes:</label>
+        <textarea name="notes"></textarea>
+
+        <button type="submit">Add Company</button>
+
+    </form>
+
+    <h2>Existing Companies</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Company Name</th>
+            <th>Industry</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for company in companies %}
+        <tr>
+            <td>{{ company.company_id }}</td>
+            <td>{{ company.company_name }}</td>
+            <td>{{ company.industry }}</td>
+            <td>{{ company.city }}</td>
+            <td>{{ company.state }}</td>
+            <td>
+                <a href="{{ url_for('edit_company', company_id=company.company_id) }}">
+                    Edit
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+</body>
+</html>
