@@ -101,5 +101,38 @@ def edit_company(company_id):
         db.disconnect()
 
 
+@app.route("/companies/delete/<int:company_id>", methods=["POST"])
+def delete_company(company_id):
+    db = JobTrackerDB()
+
+    if not db.connect():
+        flash("Database connection failed.", "error")
+        return redirect(url_for("companies"))
+
+    try:
+        deleted_rows = db.delete_company(company_id)
+
+        if deleted_rows == 1:
+            flash("Company deleted successfully!", "success")
+        else:
+            flash("Company not found.", "error")
+
+    except Error as e:
+        print(f"Error deleting company: {e}")
+
+        if e.errno == 1451:
+            flash(
+                "Cannot delete this company because it has associated jobs.",
+                "error"
+            )
+        else:
+            flash("An error occurred while deleting the company.", "error")
+
+    finally:
+        db.disconnect()
+
+    return redirect(url_for("companies"))
+
+
 if __name__ == "__main__":
     app.run(debug=True)

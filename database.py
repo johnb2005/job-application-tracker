@@ -102,9 +102,6 @@ class JobTrackerDB:
             cursor.close()
 
 
-    
-
-
     def get_company_by_id(self,company_id):
         cursor = self.connection.cursor(dictionary=True)
 
@@ -117,6 +114,29 @@ class JobTrackerDB:
             cursor.execute(query,(company_id,))
             return cursor.fetchone()
     
+        finally:
+            cursor.close()
+
+
+
+    def delete_company(self, company_id):
+        cursor = self.connection.cursor()
+
+        try:
+            query = """
+            DELETE FROM companies
+            WHERE company_id = %s
+        """
+
+            cursor.execute(query, (company_id,))
+            self.connection.commit()
+
+            return cursor.rowcount
+
+        except Error:
+            self.connection.rollback()
+            raise
+
         finally:
             cursor.close()
             
