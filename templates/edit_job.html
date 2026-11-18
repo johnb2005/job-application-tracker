@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Job</title>
+</head>
+<body>
+
+    <h1>Edit Job</h1>
+
+    <a href="{{ url_for('jobs') }}">Back to Jobs</a>
+
+    <h2>Update Job Information</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form
+        action="{{ url_for('edit_job', job_id=job.job_id) }}"
+        method="POST"
+    >
+
+        <label for="company_id">Company:</label>
+        <select name="company_id" id="company_id" required>
+            <option value="">Select a Company</option>
+
+            {% for company in companies %}
+                <option
+                    value="{{ company.company_id }}"
+                    {% if company.company_id == job.company_id %}
+                        selected
+                    {% endif %}
+                >
+                    {{ company.company_name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <label for="job_title">Job Title:</label>
+        <input
+            type="text"
+            name="job_title"
+            id="job_title"
+            maxlength="100"
+            value="{{ job.job_title }}"
+            required
+        >
+
+        <br><br>
+
+        <label for="job_type">Job Type:</label>
+        <select name="job_type" id="job_type">
+            <option value="">Select Job Type</option>
+
+            {% for type in ['Full-time', 'Part-time', 'Contract', 'Internship'] %}
+                <option
+                    value="{{ type }}"
+                    {% if job.job_type == type %}selected{% endif %}
+                >
+                    {{ type }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <label for="salary_min">Minimum Salary:</label>
+        <input
+            type="number"
+            name="salary_min"
+            id="salary_min"
+            min="0"
+            step="1"
+            value="{{ job.salary_min if job.salary_min is not none else '' }}"
+        >
+
+        <br><br>
+
+        <label for="salary_max">Maximum Salary:</label>
+        <input
+            type="number"
+            name="salary_max"
+            id="salary_max"
+            min="0"
+            step="1"
+            value="{{ job.salary_max if job.salary_max is not none else '' }}"
+        >
+
+        <br><br>
+
+        <label for="job_url">Job URL:</label>
+        <input
+            type="url"
+            name="job_url"
+            id="job_url"
+            maxlength="300"
+            value="{{ job.job_url or '' }}"
+        >
+
+        <br><br>
+
+        <label for="date_posted">Date Posted:</label>
+        <input
+            type="date"
+            name="date_posted"
+            id="date_posted"
+            value="{{ job.date_posted.isoformat() if job.date_posted else '' }}"
+        >
+
+        <br><br>
+
+        <label for="requirements">Requirements:</label>
+        <textarea
+            name="requirements"
+            id="requirements"
+            rows="5"
+            cols="40"
+        >{{ job.requirements or '' }}</textarea>
+
+        <br><br>
+
+        <button type="submit">Save Changes</button>
+
+        <a href="{{ url_for('jobs') }}">Cancel</a>
+
+    </form>
+
+</body>
+</html>

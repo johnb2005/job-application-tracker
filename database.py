@@ -152,10 +152,114 @@ class JobTrackerDB:
 
     def get_all_jobs(self):
         cursor = self.connection.cursor(dictionary=True)
-        cursor.execute("SELECT job_id,company_id,job_title FROM jobs")
+        cursor.execute("SELECT * FROM jobs")
         return cursor.fetchall()
 
+    def add_job(self,company_id,job_title,job_type,salary_min,salary_max,job_url,date_posted,requirements):
+        cursor = self.connection.cursor()
+
+
+        try:
+            query = '''
+            INSERT INTO jobs (company_id,job_title,job_type,salary_min,salary_max,job_url,date_posted,requirements)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+            '''
+
+            values = (company_id,job_title,job_type,salary_min,salary_max,job_url,date_posted,requirements)
+            
+            cursor.execute(query,values)
+            self.connection.commit()
+
+            return cursor.lastrowid
+
+        except Error:
+            self.connection.rollback()
+            raise
+
+        finally:
+            cursor.close()     
+
+    def update_job(self,job_id,job_values):
+        cursor = self.connection.cursor()
+
+        try:
+            query = '''
+            UPDATE jobs
+            
+            SET company_id = %s,
+                job_title = %s,
+                job_type = %s,
+                salary_min = %s,
+                salary_max = %s,
+                job_url = %s,
+                date_posted = %s,
+                requirements = %s
+
+            WHERE job_id = %s
+
+        '''       
+
+            values = (
+                job_values["company_id"],
+                job_values["job_title"],
+                job_values["job_type"],
+                job_values["salary_min"],
+                job_values["salary_max"],
+                job_values["job_url"],
+                job_values["date_posted"],
+                job_values["requirements"],
+                job_id
 
 
 
+
+            )
+            cursor.execute(query,values)
+            self.connection.commit()
+            return cursor.rowcount
+
+        except Error:
+            self.connection.rollback()
+            raise
+        
+        finally:
+            cursor.close()
+
+
+    def get_job_by_id(self, job_id):
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+            query = """
+            SELECT *
+            FROM jobs
+            WHERE job_id = %s
+        """
+
+            cursor.execute(query, (job_id,))
+            return cursor.fetchone()
+
+        finally:
+            cursor.close()
+
+    def delete_job(self, job_id):
+        cursor = self.connection.cursor()
+
+        try:
+            query = """
+            DELETE FROM jobs
+            WHERE job_id = %s
+        """
+
+            cursor.execute(query, (job_id,))
+            self.connection.commit()
+
+            return cursor.rowcount
+
+        except Error:
+            self.connection.rollback()
+            raise
+
+        finally:
+            cursor.close()
 
