@@ -143,18 +143,23 @@ class JobTrackerDB:
 
 
 
-
-
-
-            
-
-
-
     def get_all_jobs(self):
         cursor = self.connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM jobs")
-        return cursor.fetchall()
 
+        try:
+            query = """
+            SELECT j.*, c.company_name
+            FROM jobs j
+            LEFT JOIN companies c
+                ON j.company_id = c.company_id
+            ORDER BY j.job_id
+        """
+
+            cursor.execute(query)
+            return cursor.fetchall()
+
+        finally:
+            cursor.close()
     def add_job(self,company_id,job_title,job_type,salary_min,salary_max,job_url,date_posted,requirements):
         cursor = self.connection.cursor()
 
@@ -263,3 +268,271 @@ class JobTrackerDB:
         finally:
             cursor.close()
 
+
+# Applications CRUD
+
+    def get_all_applications(self):
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+            query = """
+            SELECT
+                a.*,
+                j.job_title,
+                c.company_name
+            FROM applications a
+            LEFT JOIN jobs j
+                ON a.job_id = j.job_id
+            LEFT JOIN companies c
+                ON j.company_id = c.company_id
+            ORDER BY a.application_id
+        """
+
+            cursor.execute(query)
+            return cursor.fetchall()
+
+        finally:
+            cursor.close()
+
+
+    def get_application_by_id(self, application_id):
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+            query = """
+            SELECT *
+            FROM applications
+            WHERE application_id = %s
+        """
+
+            cursor.execute(query, (application_id,))
+            return cursor.fetchone()
+
+        finally:
+            cursor.close()
+
+
+    def add_application(
+        self, job_id, application_date, status,
+        resume_version, cover_letter_sent, interview_data
+):
+        cursor = self.connection.cursor()
+
+        try:
+            query = """
+            INSERT INTO applications
+            (job_id, application_date, status,
+             resume_version, cover_letter_sent, interview_data)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+
+            values = (
+            job_id,
+            application_date,
+            status,
+            resume_version,
+            cover_letter_sent,
+            interview_data
+        )
+
+            cursor.execute(query, values)
+            self.connection.commit()
+            return cursor.lastrowid
+
+        except Error:
+            self.connection.rollback()
+            raise
+
+        finally:
+            cursor.close()
+
+
+    def update_application(self, application_id, application_data):
+        cursor = self.connection.cursor()
+
+        try:
+            query = """
+            UPDATE applications
+            SET job_id = %s,
+                application_date = %s,
+                status = %s,
+                resume_version = %s,
+                cover_letter_sent = %s,
+                interview_data = %s
+            WHERE application_id = %s
+        """
+
+            values = (
+            application_data["job_id"],
+            application_data["application_date"],
+            application_data["status"],
+            application_data["resume_version"],
+            application_data["cover_letter_sent"],
+            application_data["interview_data"],
+            application_id
+        )
+
+            cursor.execute(query, values)
+            self.connection.commit()
+            return cursor.rowcount
+
+        except Error:
+            self.connection.rollback()
+            raise
+
+        finally:
+            cursor.close()
+
+
+    def delete_application(self, application_id):
+        cursor = self.connection.cursor()
+
+        try:
+            query = """
+            DELETE FROM applications
+            WHERE application_id = %s
+        """
+
+            cursor.execute(query, (application_id,))
+            self.connection.commit()
+            return cursor.rowcount
+
+        except Error:
+            self.connection.rollback()
+            raise
+
+        finally:
+            cursor.close()
+
+    # Contacts CRUD
+
+    def get_all_contacts(self):
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+            query = """
+                SELECT ct.*, c.company_name
+                FROM contacts ct
+                LEFT JOIN companies c
+                    ON ct.company_id = c.company_id
+                ORDER BY ct.contact_id
+            """
+
+            cursor.execute(query)
+            return cursor.fetchall()
+
+        finally:
+            cursor.close()
+
+
+    def get_contact_by_id(self, contact_id):
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+            query = """
+                SELECT *
+                FROM contacts
+                WHERE contact_id = %s
+            """
+
+            cursor.execute(query, (contact_id,))
+            return cursor.fetchone()
+
+        finally:
+            cursor.close()
+
+
+    def add_contact(self, contact_data):
+        cursor = self.connection.cursor()
+
+        try:
+            query = """
+                INSERT INTO contacts
+                (company_id, contact_name, title,
+                 email, phone, linked_in_url, notes)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+
+            values = (
+                contact_data["company_id"],
+                contact_data["contact_name"],
+                contact_data["title"],
+                contact_data["email"],
+                contact_data["phone"],
+                contact_data["linkedin_url"],
+                contact_data["notes"]
+            )
+
+            cursor.execute(query, values)
+            self.connection.commit()
+
+            return cursor.lastrowid
+
+        except Error:
+            self.connection.rollback()
+            raise
+
+        finally:
+            cursor.close()
+
+
+    def update_contact(self, contact_id, contact_data):
+        cursor = self.connection.cursor()
+
+        try:
+            query = """
+                UPDATE contacts
+                SET company_id = %s,
+                    contact_name = %s,
+                    title = %s,
+                    email = %s,
+                    phone = %s,
+                    linked_in_url = %s,
+                    notes = %s
+                WHERE contact_id = %s
+            """
+
+            values = (
+                contact_data["company_id"],
+                contact_data["contact_name"],
+                contact_data["title"],
+                contact_data["email"],
+                contact_data["phone"],
+                contact_data["linkedin_url"],
+                contact_data["notes"],
+                contact_id
+            )
+
+            cursor.execute(query, values)
+            self.connection.commit()
+
+            return cursor.rowcount
+
+        except Error:
+            self.connection.rollback()
+            raise
+
+        finally:
+            cursor.close()
+
+
+    def delete_contact(self, contact_id):
+        cursor = self.connection.cursor()
+
+        try:
+            query = """
+                DELETE FROM contacts
+                WHERE contact_id = %s
+            """
+
+            cursor.execute(query, (contact_id,))
+            self.connection.commit()
+
+            return cursor.rowcount
+
+        except Error:
+            self.connection.rollback()
+            raise
+
+        finally:
+            cursor.close()

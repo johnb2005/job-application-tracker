@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Contact</title>
+</head>
+<body>
+
+    <h1>Edit Contact</h1>
+
+    <a href="{{ url_for('contacts') }}">
+        Back to Contacts
+    </a>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form
+        action="{{ url_for('edit_contact', contact_id=contact.contact_id) }}"
+        method="POST"
+    >
+
+        <label for="company_id">Company:</label>
+        <select name="company_id" id="company_id">
+
+            <option value=""
+                {% if contact.company_id is none %}selected{% endif %}>
+                No Company
+            </option>
+
+            {% for company in companies %}
+                <option
+                    value="{{ company.company_id }}"
+                    {% if company.company_id == contact.company_id %}
+                        selected
+                    {% endif %}
+                >
+                    {{ company.company_name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <label for="contact_name">Contact Name:</label>
+        <input
+            type="text"
+            name="contact_name"
+            id="contact_name"
+            maxlength="100"
+            value="{{ contact.contact_name }}"
+            required
+        >
+
+        <br><br>
+
+        <label for="title">Title:</label>
+        <input
+            type="text"
+            name="title"
+            id="title"
+            maxlength="100"
+            value="{{ contact.title or '' }}"
+        >
+
+        <br><br>
+
+        <label for="email">Email:</label>
+        <input
+            type="email"
+            name="email"
+            id="email"
+            maxlength="100"
+            value="{{ contact.email or '' }}"
+        >
+
+        <br><br>
+
+        <label for="phone">Phone:</label>
+        <input
+            type="tel"
+            name="phone"
+            id="phone"
+            maxlength="20"
+            value="{{ contact.phone or '' }}"
+        >
+
+        <br><br>
+
+        <label for="linkedin_url">LinkedIn URL:</label>
+        <input
+            type="url"
+            name="linkedin_url"
+            id="linkedin_url"
+            maxlength="200"
+            value="{{ contact.linkedin_url or '' }}"
+        >
+
+        <br><br>
+
+        <label for="notes">Notes:</label>
+        <textarea
+            name="notes"
+            id="notes"
+            rows="4"
+            cols="40"
+        >{{ contact.notes or '' }}</textarea>
+
+        <br><br>
+
+        <button type="submit">Save Changes</button>
+
+        <a href="{{ url_for('contacts') }}">
+            Cancel
+        </a>
+
+    </form>
+
+</body>
+</html>

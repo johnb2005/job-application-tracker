@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contacts</title>
+</head>
+<body>
+
+    <h1>Contacts</h1>
+
+    <nav>
+        <a href="{{ url_for('companies') }}">Companies</a> |
+        <a href="{{ url_for('jobs') }}">Jobs</a> |
+        <a href="{{ url_for('applications') }}">Applications</a> |
+        <a href="{{ url_for('contacts') }}">Contacts</a>
+    </nav>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <h2>Add Contact</h2>
+
+    <form action="{{ url_for('contacts') }}" method="POST">
+
+        <label for="company_id">Company:</label>
+        <select name="company_id" id="company_id">
+            <option value="">No Company</option>
+
+            {% for company in companies %}
+                <option value="{{ company.company_id }}">
+                    {{ company.company_name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <label for="contact_name">Contact Name:</label>
+        <input
+            type="text"
+            name="contact_name"
+            id="contact_name"
+            maxlength="100"
+            required
+        >
+
+        <br><br>
+
+        <label for="title">Title:</label>
+        <input
+            type="text"
+            name="title"
+            id="title"
+            maxlength="100"
+            placeholder="Recruiter, Hiring Manager, etc."
+        >
+
+        <br><br>
+
+        <label for="email">Email:</label>
+        <input
+            type="email"
+            name="email"
+            id="email"
+            maxlength="100"
+        >
+
+        <br><br>
+
+        <label for="phone">Phone:</label>
+        <input
+            type="tel"
+            name="phone"
+            id="phone"
+            maxlength="20"
+        >
+
+        <br><br>
+
+        <label for="linkedin_url">LinkedIn URL:</label>
+        <input
+            type="url"
+            name="linkedin_url"
+            id="linkedin_url"
+            maxlength="200"
+        >
+
+        <br><br>
+
+        <label for="notes">Notes:</label>
+        <textarea
+            name="notes"
+            id="notes"
+            rows="4"
+            cols="40"
+        ></textarea>
+
+        <br><br>
+
+        <button type="submit">Add Contact</button>
+    </form>
+
+    <h2>Existing Contacts</h2>
+
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Company</th>
+                <th>Contact Name</th>
+                <th>Title</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>LinkedIn</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for contact in contacts %}
+                <tr>
+                    <td>{{ contact.contact_id }}</td>
+                    <td>{{ contact.company_name or 'No Company' }}</td>
+                    <td>{{ contact.contact_name }}</td>
+                    <td>{{ contact.title or 'N/A' }}</td>
+                    <td>{{ contact.email or 'N/A' }}</td>
+                    <td>{{ contact.phone or 'N/A' }}</td>
+
+                    <td>
+                        {% if contact.linkedin_url %}
+                            <a href="{{ contact.linkedin_url }}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                LinkedIn
+                            </a>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+
+                    <td>{{ contact.notes or 'N/A' }}</td>
+
+                    <td>
+                        <a href="{{ url_for('edit_contact', contact_id=contact.contact_id) }}">
+                            Edit
+                        </a>
+
+                        <form
+                            action="{{ url_for('delete_contact', contact_id=contact.contact_id) }}"
+                            method="POST"
+                            style="display: inline;"
+                            onsubmit="return confirm('Are you sure you want to delete this contact?');"
+                        >
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+
+            {% else %}
+                <tr>
+                    <td colspan="9">No contacts found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
