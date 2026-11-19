@@ -10,10 +10,12 @@
     <h1>Applications</h1>
 
     <nav>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a> |
         <a href="{{ url_for('companies') }}">Companies</a> |
         <a href="{{ url_for('jobs') }}">Jobs</a> |
         <a href="{{ url_for('applications') }}">Applications</a> |
-        <a href="{{ url_for('contacts') }}">Contacts</a>
+        <a href="{{ url_for('contacts') }}">Contacts</a> |
+        <a href="{{ url_for('job_match') }}">Job Match</a>
     </nav>
 
     {% with messages = get_flashed_messages() %}

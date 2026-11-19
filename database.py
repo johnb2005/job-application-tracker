@@ -536,3 +536,102 @@ class JobTrackerDB:
 
         finally:
             cursor.close()
+
+    def get_dashboard_stats(self):
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+            query = '''
+            SELECT
+            COUNT(*) AS total_applications,
+
+            COUNT(CASE
+            WHEN status IN ('Applied', 'Screening', 'Interview')
+            THEN 1
+            END) AS active_applications,
+
+            COUNT(CASE
+            WHEN status = 'Interview'
+            THEN 1
+            END) AS interviews,
+
+            COUNT(CASE
+             WHEN status = 'Offer'
+            THEN 1
+            END) AS offers
+
+            FROM applications;
+        '''
+            cursor.execute(query)
+            return cursor.fetchone()
+        finally:
+         cursor.close()
+
+
+    def get_recent_applications(self):
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+
+            query = '''
+            SELECT
+            a.application_id,
+            c.company_name,
+            j.job_title,
+            a.application_date,
+            a.status
+            FROM applications a
+            JOIN jobs j ON a.job_id = j.job_id
+            JOIN companies c ON j.company_id = c.company_id
+            ORDER BY a.application_date DESC, a.application_id DESC
+            LIMIT 5;        
+
+            '''
+
+            cursor.execute(query)
+
+            return cursor.fetchall()
+
+        finally:
+            cursor.close()
+
+    def get_application_status_counts(self):
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+            query = '''
+            SELECT status, COUNT(*) AS total
+            FROM applications
+            GROUP BY status
+            ORDER BY total DESC;
+            '''
+
+            cursor.execute(query)
+            return cursor.fetchall()
+
+        finally:
+            cursor.close()
+
+    
+    def get_jobs_for_matching(self):
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+            query = """
+            SELECT
+                j.job_id,
+                j.job_title,
+                j.job_type,
+                j.requirements,
+                c.company_name
+            FROM jobs j
+            LEFT JOIN companies c
+                ON j.company_id = c.company_id
+            ORDER BY j.job_id
+        """
+
+            cursor.execute(query)
+            return cursor.fetchall()
+
+        finally:
+            cursor.close()

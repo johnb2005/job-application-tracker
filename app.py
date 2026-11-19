@@ -709,5 +709,153 @@ def delete_contact(contact_id):
 
     return redirect(url_for("contacts"))
 
+
+@app.route("/dashboard")
+def dashboard():
+    db = JobTrackerDB()
+
+    if not db.connect():
+        return "Database connection failed", 500
+
+    try:
+        stats = db.get_dashboard_stats()
+        recent_applications = db.get_recent_applications()
+        status_counts = db.get_application_status_counts()
+
+        return render_template(
+            "dashboard.html",
+            stats=stats,
+            recent_applications=recent_applications,
+            status_counts=status_counts
+        )
+
+    finally:
+        db.disconnect()
+
+
+def calculate_job_match(user_skills, job_requirements):
+
+    # Convert JSON text into a Python object
+    if isinstance(job_requirements, str):
+        try:
+            job_requirements = json.loads(job_requirements)
+        except json.JSONDecodeError:
+            return None
+
+    # Support requirements stored as a JSON array
+    # or an object containing a "skills" array
+    if isinstance(job_requirements, dict):
+        required_skills = job_requirements.get("skills", [])
+
+    elif isinstance(job_requirements, list):
+        required_skills = job_requirements
+
+    else:
+        return None
+
+    # Validate that all requirements are strings
+    if not isinstance(required_skills, list):
+        return None
+
+    if not all(isinstance(skill, str) for skill in required_skills):
+        return None
+
+    # Normalize capitalization and whitespace
+    normalized_user_skills = {
+        skill.strip().lower()
+        for skill in user_skills
+        if skill.strip()
+    }
+
+    normalized_required_skills = {
+        skill.strip().lower()
+        for skill in required_skills
+        if skill.strip()
+    }
+
+    # Jobs without listed skills cannot be scored
+    if not normalized_required_skills:
+        return None
+
+    matched_skills = normalized_required_skills.intersection(
+        normalized_user_skills
+    )
+
+    missing_skills = normalized_required_skills.difference(
+        normalized_user_skills
+    )
+
+    match_percentage = (
+        len(matched_skills) / len(normalized_required_skills)
+    ) * 100
+
+    return {
+        "match_percentage": round(match_percentage, 2),
+        "matched_skills": sorted(matched_skills),
+        "missing_skills": sorted(missing_skills)
+    }
+
+@app.route("/job-match", methods=["GET", "POST"])
+def job_match():
+
+    results = []
+    skills_input = ""
+    searched = False
+
+    if request.method == "POST":
+
+        searched = True
+        skills_input = request.form.get("skills", "").strip()
+
+        if not skills_input:
+            flash("Please enter at least one skill")
+        else:
+            user_skills = skills_input.split(",")
+
+            db = JobTrackerDB()
+
+            if not db.connect():
+                return "Database connection failed", 500
+
+            try:
+                jobs = db.get_jobs_for_matching()
+
+                for job in jobs:
+
+                    match = calculate_job_match(
+                        user_skills,
+                        job["requirements"]
+                    )
+
+                    if match is None:
+                        continue
+
+                    results.append({
+                        "job_id": job["job_id"],
+                        "job_title": job["job_title"],
+                        "company_name": job["company_name"],
+                        "job_type": job["job_type"],
+                        "match_percentage": match["match_percentage"],
+                        "matched_skills": match["matched_skills"],
+                        "missing_skills": match["missing_skills"]
+                    })
+
+                # Highest match percentage first
+                results.sort(
+                    key=lambda job: job["match_percentage"],
+                    reverse=True
+                )
+
+            finally:
+                db.disconnect()
+
+    return render_template(
+        "job_match.html",
+        results=results,
+        skills_input=skills_input,
+        searched=searched
+    )
+
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Job Match</title>
+</head>
+
+<body>
+
+    <h1>Job Application Tracker</h1>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a> |
+        <a href="{{ url_for('companies') }}">Companies</a> |
+        <a href="{{ url_for('jobs') }}">Jobs</a> |
+        <a href="{{ url_for('applications') }}">Applications</a> |
+        <a href="{{ url_for('contacts') }}">Contacts</a> |
+        <a href="{{ url_for('job_match') }}">Job Match</a>
+    </nav>
+
+    <hr>
+
+    <h2>Job Match</h2>
+
+    <p>
+        Enter your technical skills separated by commas.
+        The system will compare your skills against job
+        requirements and rank jobs by match percentage.
+    </p>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form action="{{ url_for('job_match') }}" method="POST">
+
+        <label for="skills">Your Skills:</label>
+
+        <input
+            type="text"
+            id="skills"
+            name="skills"
+            value="{{ skills_input }}"
+            placeholder="Python, SQL, Flask, Git"
+            size="50"
+            required
+        >
+
+        <button type="submit">Find Matching Jobs</button>
+
+    </form>
+
+    <hr>
+
+    {% if searched %}
+
+        <h2>Matching Results</h2>
+
+        {% if results %}
+
+            <table border="1" cellpadding="10">
+
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Job Type</th>
+                        <th>Match Percentage</th>
+                        <th>Matched Skills</th>
+                        <th>Missing Skills</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for job in results %}
+
+                        <tr>
+                            <td>{{ loop.index }}</td>
+
+                            <td>
+                                {{ job.company_name or 'N/A' }}
+                            </td>
+
+                            <td>{{ job.job_title }}</td>
+
+                            <td>
+                                {{ job.job_type or 'N/A' }}
+                            </td>
+
+                            <td>
+                                {{ job.match_percentage }}%
+                            </td>
+
+                            <td>
+                                {% if job.matched_skills %}
+                                    {{ job.matched_skills | join(', ') }}
+                                {% else %}
+                                    None
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if job.missing_skills %}
+                                    {{ job.missing_skills | join(', ') }}
+                                {% else %}
+                                    None
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <p>
+                No matching jobs were found with valid skill requirements.
+            </p>
+
+        {% endif %}
+
+    {% endif %}
+
+</body>
+</html>
