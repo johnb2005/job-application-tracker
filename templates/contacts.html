@@ -1,28 +1,14 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Contacts</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <h1>Contacts</h1>
+{% block title %}Contacts{% endblock %}
 
-    <nav>
-        <a href="{{ url_for('dashboard') }}">Dashboard</a> |
-        <a href="{{ url_for('companies') }}">Companies</a> |
-        <a href="{{ url_for('jobs') }}">Jobs</a> |
-        <a href="{{ url_for('applications') }}">Applications</a> |
-        <a href="{{ url_for('contacts') }}">Contacts</a> |
-        <a href="{{ url_for('job_match') }}">Job Match</a>
-    </nav>
+{% block page_title %}Contacts{% endblock %}
 
-    {% with messages = get_flashed_messages() %}
-        {% for message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
-    {% endwith %}
+{% block content %}
+
+
+   
 
     <h2>Add Contact</h2>
 
@@ -107,7 +93,7 @@
     </form>
 
     <h2>Existing Contacts</h2>
-
+    <div class="table-container">
     <table border="1" cellpadding="8">
         <thead>
             <tr>
@@ -148,6 +134,7 @@
                     <td>{{ contact.notes or 'N/A' }}</td>
 
                     <td>
+                        <div class="actions">
                         <a href="{{ url_for('edit_contact', contact_id=contact.contact_id) }}">
                             Edit
                         </a>
@@ -160,6 +147,7 @@
                         >
                             <button type="submit">Delete</button>
                         </form>
+                        </div>
                     </td>
                 </tr>
 
@@ -170,6 +158,6 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 
-</body>
-</html>
+{% endblock %}

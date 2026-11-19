@@ -1,29 +1,11 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Companies</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <h1>Companies</h1>
+{% block title %}Contacts{% endblock %}
 
-    
+{% block page_title %}Contacts{% endblock %}
 
-<nav>
-    <a href="{{ url_for('dashboard') }}">Dashboard</a> |
-    <a href="{{ url_for('companies') }}">Companies</a>
-    |
-    <a href="{{ url_for('jobs') }}">Jobs</a>
-    |
-    <a href="{{ url_for('applications') }}">Applications</a>
-    |
-    <a href="{{ url_for('contacts') }}">Contacts</a>
-    |
-    <a href="{{ url_for('job_match') }}">Job Match</a>
-</nav>
-
+{% block content %}
     <h2>Add New Company</h2>
 
     <form action="{{ url_for('companies') }}" method="POST">
@@ -110,5 +92,4 @@
         });
     </script>
 
-</body>
-</html>
+{% endblock %}

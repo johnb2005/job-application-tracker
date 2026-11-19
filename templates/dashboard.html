@@ -1,27 +1,11 @@
 
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Job Tracker Dashboard</title>
-</head>
+{% block title %}Contacts{% endblock %}
 
-<body>
+{% block page_title %}Contacts{% endblock %}
 
-    <h1>Job Application Tracker</h1>
-
-    <!-- Navigation -->
-
-    <nav>
-        <a href="{{ url_for('dashboard') }}">Dashboard</a> |
-        <a href="{{ url_for('companies') }}">Companies</a> |
-        <a href="{{ url_for('jobs') }}">Jobs</a> |
-        <a href="{{ url_for('applications') }}">Applications</a> |
-        <a href="{{ url_for('contacts') }}">Contacts</a>|
-        <a href="{{ url_for('job_match') }}">Job Match</a>
-    </nav>
-
+{% block content %}
     <hr>
 
     <!-- Flash Messages -->
@@ -176,5 +160,4 @@
 
     {% endif %}
 
-</body>
-</html>
+{% endblock %}
