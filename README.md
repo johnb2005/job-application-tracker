@@ -111,7 +111,6 @@ This is a rule-based matching system rather than a machine learning model.
 | python-dotenv | Loading environment variables |
 | Git and GitHub | Version control and source code management |
 
-
 ## Installation and Setup
 
 ### Prerequisites
@@ -172,7 +171,8 @@ Create the database:
 CREATE DATABASE IF NOT EXISTS job_tracker_final;
 USE job_tracker_final;
 ```
-execute schema.sql to create the required tables and relationships.
+
+Execute `schema.sql` to create the required tables and relationships.
 
 For example, from the project directory:
 
@@ -182,7 +182,30 @@ mysql -u root -p job_tracker_final < schema.sql
 
 Ensure that the schema matches the tables expected by the Flask application.
 
-### Step 5: Configure Environment Variables
+### Step 5: Insert Sample Data (Optional)
+
+The repository includes a `seed.sql` file containing fictional sample data for testing and demonstrating the application's functionality.
+
+The sample data includes:
+
+- 5 companies
+- 8 job postings
+- 6 applications with different statuses
+- 5 professional contacts
+
+To populate the database, run the following command from the project directory after executing `schema.sql`:
+
+```bash
+mysql -u root -p job_tracker_final < seed.sql
+```
+
+Enter your MySQL password when prompted.
+
+The sample data allows users to explore the dashboard, test CRUD operations, and evaluate the Job Match feature without manually creating records.
+
+**Note:** The `seed.sql` script is intended for an empty database. Running it multiple times may result in duplicate primary key errors.
+
+### Step 6: Configure Environment Variables
 
 Create a `.env` file in the project root.
 
@@ -198,7 +221,8 @@ DB_NAME=job_tracker_final
 ```
 
 Replace the example values with your local MySQL configuration.
-### Step 6: Run the Application
+
+### Step 7: Run the Application
 
 With the virtual environment activated, execute:
 
@@ -240,4 +264,3 @@ Potential enhancements include:
 - More advanced skill matching using synonyms and weighted requirements.
 - Interview reminders and follow-up notifications.
 - Deployment to a hosted environment.
-
